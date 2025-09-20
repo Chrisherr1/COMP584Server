@@ -5,6 +5,8 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 
 builder.Services.AddControllers();
+
+
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
 builder.Services.AddSwaggerGen(options =>
@@ -28,7 +30,7 @@ if (app.Environment.IsDevelopment())
         // options.RoutePrefix = string.Empty;
     });
 }
-
+app.UseCors(options => options.AllowAnyHeader().AllowAnyMethod().AllowAnyOrigin());
 app.UseAuthorization();
 
 app.MapControllers();
