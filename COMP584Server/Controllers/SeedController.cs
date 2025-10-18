@@ -21,7 +21,8 @@ namespace COMP584Server.Controllers
         {
             Dictionary<string, Country> countries = await context.Countries.AsNoTracking()
                 .ToDictionaryAsync(c => c.Name, StringComparer.OrdinalIgnoreCase);
-            CsvConfiguration config = new(CultureInfo.InvariantCulture) { 
+            await context.SaveChangesAsync();
+
             CsvConfiguration config = new(CultureInfo.InvariantCulture) { 
                 HasHeaderRecord = true, HeaderValidated = null 
             };
@@ -72,8 +73,8 @@ namespace COMP584Server.Controllers
                     City city = new()
                     {
                         Name = record.city,
-                        Latitude = record.lat,
-                        Longitude = record.lng,
+                        Latitude = (int)record.lat,
+                        Longitude = (int)record.lng,
                         Population = (int)record.population.Value,
                         CountryId = countries[record.country].Id
                     };

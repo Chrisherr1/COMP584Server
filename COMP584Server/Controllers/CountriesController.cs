@@ -2,8 +2,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using COMP584Server.Data.DTO;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.EntityFrameworkCore;
 using worldmodel;
 
@@ -20,6 +22,22 @@ namespace COMP584Server.Controllers
         {
             return await context.Countries.ToListAsync();
         }
+        // GET: api/Countries/population
+        [HttpGet("population")]
+        public async Task<ActionResult<IEnumerable<CountryPopulation>>> GetCountryPopulation()
+        {
+            return await context.Countries.
+                Select(c => new CountryPopulation 
+                {
+                    Id = c.Id,
+                    Name = c.Name,
+                    Iso2 = c.Iso2,
+                    Iso3 = c.Iso3,
+                    Population = c.Cities.Sum(city => city.Population)
+                })
+                .ToListAsync();
+
+        }
 
         // GET: api/Countries/5
         [HttpGet("{id}")]
@@ -31,13 +49,35 @@ namespace COMP584Server.Controllers
             {
                 return NotFound();
             }
-
             return country;
         }
 
-        // PUT: api/Countries/5
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPut("{id}")]
+        // GET: api/Countries/5/population
+        [HttpGet("population/{id}")]
+        public ActionResult<CountryPopulation> GetCountryPopulation(int id)
+        {
+            /*
+            var x = context.Countries.Select(country => new CountryPopulation
+            {
+                Id = country.Id,
+                Name = country.Name,
+                Iso2 = country.Iso2,
+                Iso3 = country.Iso3,
+                Population = country.Cities.Sum(city => city.Population)
+            });
+           */
+            return context.Countries.Select(country => new CountryPopulation{
+                Id = country.Id,
+                Name = country.Name,
+                Iso2 = country.Iso2,
+                Iso3 = country.Iso3,
+                Population = country.Cities.Sum(city => city.Population)
+            }).Single(country => country.Id == id);
+        }
+
+// PUT: api/Countries/5
+// To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+[HttpPut("{id}")]
         public async Task<IActionResult> PutCountry(int id, Country country)
         {
             if (id != country.Id)
